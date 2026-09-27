@@ -169,7 +169,7 @@ h1 .bp{display:none}
         <p>The goal is to bring these together. Non-invasive, radiation-free and efficient, sound can image a lesion, modulate neural activity and deliver a drug, quickly and safely.</p>
       </div>
       <figure class="atlas rv d3">
-        <p class="cap-t mono">Fig. 0 · Frequency × pressure</p>
+        <p class="cap-t mono">Click to choose</p>
         <svg id="atlas" viewBox="0 0 340 172" role="img" aria-label="Log frequency against log pressure, showing where sound is used to delight, to speak, to see through the skull and to shape matter; the last view draws on both imaging and shaping. Select a region to change the field."></svg>
       </figure>
     </div>
@@ -935,7 +935,7 @@ function frame(ms){
   if (dt <= 0) return; if (dt > .05) dt = .05;
   now += dt;
   offY = (stageEl.getBoundingClientRect().top - hero.getBoundingClientRect().top) - S.y;
-  if (!hover) elapsed += dt;
+  elapsed += dt;   // the sections keep advancing whether or not the field is being hovered or clicked
   if (elapsed > SEG + (MODES[mode].extra || 0)) setMode(mode + 1);
   MODES[mode].step(dt);
   if (ripples.length) applyRipples();
@@ -972,8 +972,6 @@ document.getElementById('mail').addEventListener('click', e => {
   if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(addr).then(() => done(true), () => done(fallback()));
   else done(fallback());
 });
-stageEl.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') hover = true; });
-stageEl.addEventListener('pointerleave', () => { hover = false; });
 stageEl.addEventListener('click', e => {
   const hr = hero.getBoundingClientRect(), x = e.clientX - hr.left, y = e.clientY - hr.top - offY;
   if (!reduce) ripples.push({x, y, t: now});
