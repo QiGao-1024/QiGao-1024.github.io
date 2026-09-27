@@ -842,14 +842,16 @@ function syncSnd(){
 }
 sndBtn.addEventListener('click', e => {
   e.stopPropagation();
-  if (Snd.on && !Snd.running()){ Snd.unlock().then(syncSnd); syncSnd(); return; }  // first press only unlocks
+  // the press that unlocks audio (pointerup/touchend fire just before this click) only turns sound on
+  if ((Snd.on && !Snd.running()) || performance.now() - unlockT < 350){ Snd.setOn(true); Snd.unlock().then(syncSnd); syncSnd(); return; }
   Snd.setOn(!Snd.on);
   if (Snd.on) Snd.unlock().then(syncSnd);
   syncSnd();
 });
 // Browsers start audio only after a gesture. Sound stays "on", and the first click, tap or key press starts it.
 // Listeners stay attached so audio also recovers after iOS suspends it (backgrounding, calls).
-const gesture = () => { if (Snd.on && !Snd.running()) Snd.unlock().then(syncSnd); };
+let unlockT = -1e9;
+const gesture = () => { if (Snd.on && !Snd.running()){ unlockT = performance.now(); Snd.unlock().then(syncSnd); } };
 ['click', 'touchend', 'pointerup', 'keydown'].forEach(ev => addEventListener(ev, gesture, true));
 document.addEventListener('visibilitychange', syncSnd);
 syncSnd();
