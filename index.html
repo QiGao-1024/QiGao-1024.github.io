@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Qi (Liam) Gao</title>
+<meta name="description" content="Qi (Liam) Gao, PhD researcher at Imperial College London. Transcranial ultrasound imaging, full-waveform inversion, and sound in all its uses.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* One medium, four intents.
+   Paper and ink like an acoustics plate from an old monograph; a single vermilion
+   is reserved for whatever sound has just revealed or acted upon. */
+:root{
+  color-scheme: light;
+  --paper:#f2efe8;
+  --ink:#1a1915;
+  --ink-2:#57544b;
+  --ink-3:#8f8b80;
+  --hair:rgba(26,25,21,.14);
+  --accent:#c3462b;
+  --serif:"Instrument Serif","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --sans:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --gut:clamp(16px,3.2vw,52px);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:400 15px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+::selection{background:var(--accent);color:#fff}
+:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+.mono{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase}
+
+/* paper grain */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:40;opacity:.55;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .1  0 0 0 0 .09  0 0 0 0 .08  0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+/* ---------- frame ---------- */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+#field{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1.4s ease}
+.ready #field{opacity:1}
+
+.top{position:relative;z-index:3;display:flex;align-items:center;gap:36px;padding:24px var(--gut) 0}
+.brand{font-family:var(--serif);font-size:25px;line-height:1;text-decoration:none;letter-spacing:.005em;white-space:nowrap}
+.brand i{color:var(--ink-2)}
+.top nav{display:flex;gap:30px;margin-left:auto}
+.top nav a{font-size:13.5px;color:var(--ink-2);text-decoration:none;position:relative;padding-bottom:2px}
+.top nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:right;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.top nav a:hover{color:var(--ink)}
+.top nav a:hover::after{transform:scaleX(1);transform-origin:left}
+.snd{appearance:none;background:none;border:1px solid var(--hair);border-radius:999px;padding:7px 14px 7px 12px;color:var(--ink-2);display:inline-flex;gap:10px;align-items:center;cursor:pointer;transition:border-color .3s,color .3s}
+.snd:hover{border-color:var(--ink-3);color:var(--ink)}
+.bars{display:inline-flex;gap:2px;align-items:flex-end;height:10px}
+.bars i{display:block;width:2px;height:2px;background:currentColor;transition:height .3s}
+.snd[aria-pressed="true"]{color:var(--ink)}
+.snd[aria-pressed="true"] .bars i{animation:bar 1s ease-in-out infinite alternate}
+.snd[aria-pressed="true"] .bars i:nth-child(2){animation-delay:-.35s}
+.snd[aria-pressed="true"] .bars i:nth-child(3){animation-delay:-.7s}
+@keyframes bar{from{height:2px}to{height:10px}}
+
+.main{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,3vw,56px);padding:clamp(12px,3vh,36px) var(--gut) clamp(24px,4vh,44px);min-height:0;pointer-events:none}
+.copy{align-self:center;max-width:540px;pointer-events:auto}
+.eyebrow{color:var(--ink-3);margin:0 0 26px}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(50px,5.9vw,106px);line-height:.95;letter-spacing:-.018em;margin:0}
+h1 .l1{display:block}
+.verbs{display:inline-grid;cursor:pointer}
+.verbs em{grid-area:1/1;font-style:italic;opacity:0;transform:translateY(.22em);filter:blur(7px);transition:opacity .9s ease,transform 1s cubic-bezier(.2,.7,.2,1),filter .9s ease;white-space:nowrap}
+.verbs em b{font-weight:400;color:var(--accent)}
+.verbs em.on{opacity:1;transform:none;filter:none}
+.verbs em.out{opacity:0;transform:translateY(-.22em);filter:blur(7px)}
+.lede{margin:28px 0 0;color:var(--ink-2);font-size:clamp(15px,1.08vw,16.5px);max-width:41ch;line-height:1.62}
+
+.atlas{margin:40px 0 0;max-width:392px}
+.atlas .cap-t{color:var(--ink-3);margin:0 0 10px;display:flex;align-items:center;gap:10px}
+.atlas .cap-t::before{content:"";width:18px;height:1px;background:var(--ink-3)}
+.atlas svg{width:100%;height:auto;display:block;overflow:visible}
+.atlas svg text{font-family:var(--mono);font-size:8.6px;letter-spacing:.04em;fill:var(--ink-3)}
+.atlas .ax{stroke:var(--ink-3);stroke-width:.8;opacity:.7}
+.atlas .aud{stroke:var(--ink-3);stroke-width:.8;stroke-dasharray:2 3;opacity:.6}
+.atlas .rg{cursor:pointer}
+.atlas .rg:hover path{opacity:1;stroke:var(--ink-2)}
+.atlas .rg path{fill:transparent;stroke-linejoin:round;stroke:var(--ink-3);stroke-width:.8;opacity:.75;transition:fill .6s,stroke .6s,opacity .6s;cursor:pointer}
+.atlas .rg text{transition:fill .6s}
+.atlas .rg.on path{fill:rgba(195,70,43,.09);stroke:var(--accent);opacity:1}
+.atlas .rg.on text{fill:var(--accent)}
+
+.stage{position:relative;min-height:0;cursor:crosshair;pointer-events:auto}
+.hint{position:absolute;right:0;bottom:0;color:var(--ink-3);pointer-events:none;transition:opacity .4s}
+
+
+/* entrance */
+.js .rv{opacity:0;transform:translateY(14px);transition:opacity 1.2s cubic-bezier(.2,.7,.2,1),transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.ready .rv{opacity:1;transform:none}
+.ready .rv.d1{transition-delay:.15s}.ready .rv.d2{transition-delay:.3s}.ready .rv.d3{transition-delay:.5s}.ready .rv.d4{transition-delay:.75s}
+
+@media (max-height:800px) and (min-width:881px){
+  h1{font-size:clamp(48px,5.4vw,92px)}
+  .eyebrow{margin-bottom:18px}
+  .lede{margin-top:20px}
+  .atlas{margin-top:24px;max-width:320px}
+}
+@media (max-width:880px), (orientation:portrait) and (max-width:1100px){
+  .hero{min-height:0}
+  .top nav{display:none}
+  .top .snd{margin-left:auto}
+  .main{grid-template-columns:1fr;gap:0}
+  .copy{display:contents}
+  .copy > *{pointer-events:auto}
+  .eyebrow{order:1;margin-top:18px}
+  h1{order:2;font-size:clamp(48px,10vw,96px)}
+  .stage{order:3;height:min(104vw,640px);margin:30px 0 26px}
+  .atlas{order:4;margin-top:0}
+  .lede{order:5;margin-top:30px;max-width:46ch}
+}
+@media (max-width:540px){
+  .atlas{max-width:none}
+  .hint{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .js .rv{opacity:1;transform:none;transition:none}
+  .verbs em{transition:opacity .3s}
+}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="hero" id="top">
+  <canvas id="field" aria-hidden="true"></canvas>
+
+  <header class="top">
+    <a class="brand rv" href="#top">Qi <i>(Liam)</i> Gao</a>
+    <nav class="rv d1" aria-label="Primary">
+      <a href="#research">Research</a>
+      <a href="#sound">Sound</a>
+      <a href="#writing">Writing</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="snd mono rv d1" id="snd" type="button" aria-pressed="true"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span id="sndLabel">Sound on</span></button>
+  </header>
+
+  <div class="main">
+    <div class="copy">
+      <p class="eyebrow mono rv">PhD researcher · Imperial College London</p>
+      <h1 class="rv d1"><span class="l1">I’m drawn to</span><span class="l1">sound that</span>
+        <span class="verbs" id="verbs" aria-live="polite"><em class="on">delights<b>.</b></em><!-- <em>speaks<b>.</b></em> --><em>sees<b>.</b></em><em>shapes<b>.</b></em></span></h1>
+      <p class="lede rv d2">I work on transcranial ultrasound imaging, recovering the brain behind the skull by full-waveform inversion of the recorded wavefield. Away from the solver I listen to music, make it, and keep collecting the other things a single pressure wave can do.</p>
+      <figure class="atlas rv d3">
+        <p class="cap-t mono">Fig. 0 · Frequency × pressure</p>
+        <svg id="atlas" viewBox="0 0 340 172" role="img" aria-label="Log frequency against log pressure, showing where sound is used to delight, to speak, to see through the skull and to shape matter. Select a region to change the field."></svg>
+      </figure>
+    </div>
+
+    <div class="stage" id="stage" aria-label="Particle medium driven by sound. Click to excite it.">
+      <div class="hint mono" id="hint">Click the field to excite it</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.documentElement.classList.add('js');
+(() => {
+'use strict';
+const TAU = Math.PI * 2;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const R = Math.random;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const smooth = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+const hero = document.querySelector('.hero');
+const cvs = document.getElementById('field');
+const ctx = cvs.getContext('2d');
+const stageEl = document.getElementById('stage');
+const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
+
+let W = 0, H = 0, DPR = 1;
+let S = {x:0, y:0, w:1, h:1, cx:0, cy:0};
+let N = 0;
+let bx, by, vx, vy, tx, ty, dx, dy, PX, PY, delay, rnd, cls;
+let now = 0, tSwitch = 0, elapsed = 0, mode = 0, hover = false;
+const SEG = reduce ? Infinity : 12;
+const KB = 48;
+
+function measure(){
+  const hr = hero.getBoundingClientRect();
+  W = hr.width; H = hr.height;
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
+  const sr = stageEl.getBoundingClientRect();
+  S = {x: sr.left - hr.left, y: sr.top - hr.top, w: Math.max(1, sr.width), h: Math.max(1, sr.height)};
+  S.cx = S.x + S.w / 2; S.cy = S.y + S.h / 2;
+}
+function alloc(n){
+  N = n;
+  const F = () => new Float32Array(n);
+  bx=F(); by=F(); vx=F(); vy=F(); tx=F(); ty=F(); dx=F(); dy=F(); PX=F(); PY=F(); delay=F(); rnd=F();
+  cls = new Uint8Array(n);
+  for (let i = 0; i < n; i++) rnd[i] = R();
+}
+/* Coherent assignment of particles to a new set of targets:
+   sort both sets into equal-count vertical strips by x, then pair within a strip by y. */
+function match(TX, TY){
+  const n = N, P = new Array(n), T = new Array(n);
+  for (let i = 0; i < n; i++){ P[i] = i; T[i] = i; }
+  P.sort((a, b) => bx[a] - bx[b]);
+  T.sort((a, b) => TX[a] - TX[b]);
+  const B = Math.max(6, Math.round(Math.sqrt(n) / 2.5)), m = new Int32Array(n);
+  for (let s = 0; s < B; s++){
+    const a = Math.floor(s * n / B), e = Math.floor((s + 1) * n / B);
+    const ps = P.slice(a, e).sort((p, q) => by[p] - by[q]);
+    const ts = T.slice(a, e).sort((p, q) => TY[p] - TY[q]);
+    for (let k = 0; k < ps.length; k++) m[ps[k]] = ts[k];
+  }
+  return m;
+}
+function jitterGrid(x0, y0, w, h, n, reject){
+  let s = Math.sqrt(w * h / n);
+  for (let tries = 0; tries < 12; tries++){
+    const cols = Math.max(1, Math.ceil(w / s)), rows = Math.max(1, Math.ceil(h / s));
+    const sx = w / cols, sy = h / rows, pts = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++){
+      const x = x0 + (c + .5 + (R() - .5) * .8) * sx, y = y0 + (r + .5 + (R() - .5) * .8) * sy;
+      if (!reject || !reject(x, y)) pts.push(x, y);
+    }
+    if (pts.length / 2 >= n){
+      for (let i = pts.length / 2 - 1; i > 0; i--){
+        const j = (R() * (i + 1)) | 0;
+        let t = pts[2*i]; pts[2*i] = pts[2*j]; pts[2*j] = t;
+        t = pts[2*i+1]; pts[2*i+1] = pts[2*j+1]; pts[2*j+1] = t;
+      }
+      const TX = new Float32Array(n), TY = new Float32Array(n);
+      for (let i = 0; i < n; i++){ TX[i] = pts[2*i]; TY[i] = pts[2*i+1]; }
+      return [TX, TY];
+    }
+    s *= .93;
+  }
+  const TX = new Float32Array(n), TY = new Float32Array(n);
+  for (let i = 0; i < n; i++){ TX[i] = x0 + R() * w; TY[i] = y0 + R() * h; }
+  return [TX, TY];
+}
+
+/* ---------------- sound (off by default) ---------------- */
+const Snd = {
+  on:true, A:null, out:null, mg:null, noise:null,
+  init(){
+    if (this.A) return;
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const A = this.A = new AC();
+    const comp = A.createDynamicsCompressor(); comp.connect(A.destination);
+    const out = this.out = A.createGain(); out.gain.value = .85; out.connect(comp);
+    const dl = A.createDelay(1); dl.delayTime.value = .29;
+    const fb = A.createGain(); fb.gain.value = .33;
+    const lp = A.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2000;
+    const wet = A.createGain(); wet.gain.value = .32;
+    out.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(wet); wet.connect(comp);
+    const o = A.createOscillator(); o.type = 'sine'; o.frequency.value = 700;
+    const g = this.mg = A.createGain(); g.gain.value = 0; o.connect(g); g.connect(out); o.start();
+    const len = Math.round(A.sampleRate * .25), buf = A.createBuffer(1, len, A.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (R() * 2 - 1) * Math.pow(1 - i / len, 2);
+    this.noise = buf;
+  },
+  unlock(){ this.init(); return this.A && this.on ? this.A.resume() : Promise.resolve(); },
+  toggle(){
+    this.init(); if (!this.A) return false;
+    this.on = !this.on;
+    if (this.on) this.A.resume(); else this.mg.gain.setTargetAtTime(0, this.A.currentTime, .01);
+    return this.on;
+  },
+  tone(f, dur, gain, delay = 0, type = 'sine'){
+    if (!this.on || !this.A || this.A.state !== 'running') return;
+    const A = this.A, t = A.currentTime + delay, o = A.createOscillator(), g = A.createGain();
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + .012);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(this.out); o.start(t); o.stop(t + dur + .05);
+  },
+  plate(i){ // a struck plate: root, fifth, octave and two inharmonic plate partials
+    const roots = [220, 261.63, 196, 293.66, 246.94], f = roots[i % roots.length];
+    [[1,.065],[1.5,.032],[2,.026],[2.756,.016],[5.404,.006]].forEach(([r, g], k) => this.tone(f * r, 3.4 - k * .45, g, k * .05));
+  },
+  ping(){ this.tone(1318.5, .7, .04); this.tone(2637, .22, .01); },
+  pop(){
+    if (!this.on || !this.A || this.A.state !== 'running') return;
+    const A = this.A, t = A.currentTime, s = A.createBufferSource(), bp = A.createBiquadFilter(), g = A.createGain();
+    s.buffer = this.noise; bp.type = 'bandpass'; bp.frequency.value = 700; bp.Q.value = .9;
+    g.gain.setValueAtTime(.09, t); g.gain.exponentialRampToValueAtTime(.0001, t + .16);
+    s.connect(bp); bp.connect(g); g.connect(this.out); s.start(t);
+    const o = A.createOscillator(), og = A.createGain();
+    o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(55, t + .25);
+    og.gain.setValueAtTime(.07, t); og.gain.exponentialRampToValueAtTime(.0001, t + .3);
+    o.connect(og); og.connect(this.out); o.start(t); o.stop(t + .35);
+  },
+  morse(e){ if (this.A) this.mg.gain.setTargetAtTime(this.on ? e * .045 : 0, this.A.currentTime, .006); }
+};
+
+/* ================= I · Resonance: Chladni plate ================= */
+const Res = {
+  figs: [[2,5,-1],[3,4,1],[1,6,-1],[3,7,1],[4,5,-1]], fi: 0, ft: 0,
+  plays: 0, MAXP: 5, FIRST: 2.8, GAP: 3.2, active: false, extra: 5,
+  qx: null, qy: null, L: 0, x0: 0, y0: 0,
+  geom(){ this.L = Math.min(S.w, S.h) * .84; this.x0 = S.cx - this.L / 2; this.y0 = S.cy - this.L / 2; },
+  enter(resize){
+    this.geom();
+    if (!this.qx || this.qx.length !== N){ this.qx = new Float32Array(N); this.qy = new Float32Array(N); resize = false; }
+    if (resize) return;
+    const TX = new Float32Array(N), TY = new Float32Array(N);
+    for (let j = 0; j < N; j++){ TX[j] = this.x0 + R() * this.L; TY[j] = this.y0 + R() * this.L; }
+    const m = match(TX, TY);
+    for (let i = 0; i < N; i++){ this.qx[i] = (TX[m[i]] - this.x0) / this.L; this.qy[i] = (TY[m[i]] - this.y0) / this.L; }
+    this.fi = (this.fi + this.figs.length - 1) % this.figs.length;  // the first strike advances to the next figure
+    this.plays = 0; this.active = false; this.ft = now + this.FIRST - this.GAP;  // grains settle on a silent plate first
+  },
+  next(){ this.fi = (this.fi + 1) % this.figs.length; this.ft = now; this.active = true; this.plays++; Snd.plate(this.fi); },
+  poke(){ this.next(); },
+  step(dt){
+    if (this.plays < this.MAXP && now - this.ft > this.GAP) this.next();
+    const act = this.active;
+    const [m, n, sg] = this.figs[this.fi], a = Math.PI * m, b = Math.PI * n, K = a * a + b * b;
+    const eta = 2.4 * dt, sd = .068 * Math.sqrt(dt);
+    const {qx, qy, L, x0, y0} = this;
+    for (let i = 0; i < N; i++){
+      let x = qx[i], y = qy[i];
+      const cax = Math.cos(a*x), sax = Math.sin(a*x), cby = Math.cos(b*y), sby = Math.sin(b*y);
+      const cbx = Math.cos(b*x), sbx = Math.sin(b*x), cay = Math.cos(a*y), say = Math.sin(a*y);
+      const f = cax*cby + sg*cbx*cay;
+      const fx = -a*sax*cby - sg*b*sbx*cay;
+      const fy = -b*cax*sby - sg*a*cbx*say;
+      const af = f < 0 ? -f : f;
+      if (act){
+        x -= eta * f * fx / K; y -= eta * f * fy / K;          // sand slides down the gradient of w²
+        x += (R() - .5) * sd * af; y += (R() - .5) * sd * af;  // and is kicked where the plate moves
+      }
+      if (x < 0) x = -x; else if (x > 1) x = 2 - x;
+      if (y < 0) y = -y; else if (y > 1) y = 2 - y;
+      qx[i] = x; qy[i] = y;
+      tx[i] = x0 + x * L; ty[i] = y0 + y * L;
+      const j = act ? af * .7 : 0; dx[i] = (R() - .5) * j; dy[i] = (R() - .5) * j;
+      cls[i] = act && af <= .42 ? 1 : 0;
+    }
+  },
+  overlay(c, al){
+    if (!this.L) return;
+    const {x0, y0, L} = this, [m, n] = this.figs[this.fi];
+    c.strokeStyle = `rgba(26,25,21,${.2 * al})`; c.lineWidth = 1;
+    c.strokeRect(Math.round(x0) + .5, Math.round(y0) + .5, Math.round(L), Math.round(L));
+  },
+  readout(){
+    if (!this.active) return ['Plate at rest', 'f —', `Grains ${N}`];
+    const [m, n] = this.figs[this.fi], f = 41.2 * (m*m + n*n);
+    return [`Plate mode (${m}, ${n})`, `f ≈ ${(f/1000).toFixed(2)} kHz`, `Grains ${N}`];
+  },
+  op(){ const [m, n] = this.figs[this.fi]; return [Math.log10(41.2 * (m*m + n*n)), -.7]; }
+};
+
+/* ================= II · Modulation: Morse on a carrier ================= */
+const Mod = {
+  unit: .085, P: 1, ends: [], env: null, word: 'HELLO', rx: null, ry: null, tS: 0,
+  x0: 0, x1: 0, y0: 0, bh: 0, ty: 0, c: 1, k: 1, A: 1, eRx: 0, rxTxt: '',
+  build(){
+    const code = {H:'....', E:'.', L:'.-..', O:'---'}, on = [], ends = [];
+    let u = 0;
+    [...this.word].forEach((ch, li) => {
+      const s = code[ch];
+      for (let si = 0; si < s.length; si++){ const d = s[si] === '.' ? 1 : 3; on.push([u, u + d]); u += d; if (si < s.length - 1) u += 1; }
+      ends.push(u); if (li < this.word.length - 1) u += 3;
+    });
+    u += 14;
+    this.P = u * this.unit; this.ends = ends.map(e => e * this.unit);
+    const M = 4096, env = new Float32Array(M);
+    for (let k = 0; k < M; k++){
+      const tu = k / M * u; let v = 0;
+      for (const [a, b] of on){ if (tu > a - .4 && tu < b + .4) v = Math.max(v, smooth((tu - (a - .35)) / .7) * smooth(((b + .35) - tu) / .7)); }
+      env[k] = v;
+    }
+    this.env = env;
+  },
+  envAt(t){ if (t < 0) return 0; const ph = (t % this.P) / this.P * 4096; return this.env[ph | 0]; },
+  enter(){
+    if (!this.env) this.build();
+    this.x0 = S.x; this.x1 = S.x + S.w;
+    this.bh = clamp(S.h * .42, 110, 320);
+    const yc = S.cy - S.h * .05; this.y0 = yc - this.bh / 2; this.ty = yc + this.bh / 2 + 40;
+    this.c = S.w / 2.4; const lam = clamp(S.w / 32, 14, 28); this.k = TAU / lam; this.A = lam * .24;
+    const [TX, TY] = jitterGrid(this.x0, this.y0, S.w, this.bh, N);
+    const m = match(TX, TY);
+    if (!this.rx || this.rx.length !== N){ this.rx = new Float32Array(N); this.ry = new Float32Array(N); }
+    for (let i = 0; i < N; i++){ this.rx[i] = TX[m[i]]; this.ry[i] = TY[m[i]]; }
+    this.tS = now - .9; this.rxTxt = '';
+  },
+  poke(){},
+  step(){
+    const te = now - this.tS, w = this.k * this.c, {rx, ry, x0, c, A} = this;
+    for (let i = 0; i < N; i++){
+      const tau = te - (rx[i] - x0) / c, e = this.envAt(tau);
+      tx[i] = rx[i]; ty[i] = ry[i];
+      dx[i] = e > 0 ? A * e * Math.sin(w * tau) : 0; dy[i] = 0;
+      cls[i] = e > .08 ? 1 : 0;
+    }
+    const tr = te - (this.x1 - x0) / c;
+    this.eRx = this.envAt(tr);
+    if (tr > 0){ const ph = tr % this.P; let n = 0; for (const e of this.ends) if (e <= ph) n++; this.rxTxt = this.word.slice(0, n); }
+    Snd.morse(this.eRx);
+  },
+  leave(){ Snd.morse(0); },
+  overlay(c, al){
+    if (!this.bh) return;
+    const {x0, x1, y0, bh} = this, te = now - this.tS, w = this.k * this.c;
+    c.lineWidth = 1;
+    c.strokeStyle = `rgba(26,25,21,${.25 * al})`;
+    c.beginPath(); c.moveTo(Math.round(x0) + .5, y0 - 12); c.lineTo(Math.round(x0) + .5, y0 + bh + 12); c.stroke();
+    c.strokeStyle = this.eRx > .2 ? `rgba(195,70,43,${.9 * al})` : `rgba(26,25,21,${.25 * al})`;
+    c.beginPath(); c.moveTo(Math.round(x1) - .5, y0 - 12); c.lineTo(Math.round(x1) - .5, y0 + bh + 12); c.stroke();
+    c.font = `10px ${MONO}`; c.fillStyle = `rgba(26,25,21,${.5 * al})`;
+    c.textAlign = 'left'; c.fillText('TX', x0, y0 - 20);
+    c.textAlign = 'right'; c.fillText('RX', x1, y0 - 20);
+    c.strokeStyle = `rgba(26,25,21,${.45 * al})`; c.beginPath();
+    for (let x = x0; x <= x1; x += 2){
+      const tau = te - (x - x0) / this.c, p = this.envAt(tau) * Math.sin(w * tau + 1.5708);
+      const y = this.ty - p * 10; x === x0 ? c.moveTo(x, y) : c.lineTo(x, y);
+    }
+    c.stroke();
+    c.textAlign = 'left'; c.fillStyle = `rgba(26,25,21,${.4 * al})`; c.fillText('p(x, t)', x0, this.ty + 26);
+  },
+  readout(){ return ['Tone 700 Hz · λ 49 cm (air)', `TX ${this.word}`, `RX ${this.rxTxt || '—'}`]; },
+  op(){ return [Math.log10(700), Math.log10(.02 * (1 + 1.5 * this.eRx))]; }
+};
+
+/* ================= III · Transcranial imaging: an axial slice develops shot by shot ================= */
+const Inv = {
+  hx:null, hy:null, gx:null, gy:null, typ:null, sc: [],
+  prog: 0, shots: 0, shotT: -9, next: 0, src: 0, R: 0,
+  AX: .8, AY: .96,
+  /* stylised axial slice, unit coords (y down = posterior). returns [density, type]
+     type: 0 soft tissue, 1 skull, 2 grey matter, 3 CSF, 4 ventricle wall */
+  field(x, y){
+    const ax = this.AX, ay = this.AY, u = x / ax, v = y / ay, rho = Math.sqrt(u*u + v*v), th = Math.atan2(v, u);
+    if (rho > 1) return [0, 0];
+    const t = .068 - .024 * Math.cos(2 * th) + .005 * Math.sin(7 * th + 1.3);   // thin temporal bone, thicker front and back
+    if (rho > 1 - t){ const q = (1 - rho) / t; return q < .3 || q > .72 ? [2.1, 1] : [.9, 1]; }  // tables and diploë
+    const rb = 1 - t - .022;
+    if (rho > rb) return [.25, 3];                                                 // CSF gap
+    const depth = rb - rho;
+    // gyri: a folded cortical ribbon cut by sulci that run inward
+    const ph = 19 * th + 2.4 * Math.sin(5 * th) + .9 * Math.sin(11 * th + 2);
+    const g = .06 + .035 * Math.sin(ph) + .012 * Math.sin(43 * th);
+    if (depth < .13 && Math.cos(ph) > .9 - depth * 2.2) return [.12, 3];          // sulcus
+    if (depth < Math.max(.03, g)) return [1.5, 2];                                 // grey matter
+    if (Math.abs(x) < .012 && (y < -.44 || y > .4)) return [.15, 3];               // interhemispheric fissure
+    for (const s of [-1, 1]){                                                      // lateral ventricles, ")(" in axial view
+      const py = (y + .03) / .34, px = x - s * (.13 + .045 * py * py + .03 * py);
+      const w = .07 * (1 - .3 * py), q = (px / w) ** 2 + py * py;              // wider frontal horns
+      if (q < 1) return [.04, 3];
+      if (q < 1.6) return [1.9, 4];                                            // ventricle wall
+    }
+    if (Math.abs(x) < .016 && y > .02 && y < .2) return [.06, 3];                  // third ventricle
+    for (const s of [-1, 1]){
+      const ex = x - s * .085, ey = y - .12;                                       // thalami
+      if (ex*ex / .0042 + ey*ey / .0085 < 1) return [1.45, 2];
+      const c = Math.cos(s * .5), sn = Math.sin(s * .5), lx = (x - s * .31) * c + (y - .02) * sn, ly = -(x - s * .31) * sn + (y - .02) * c;
+      if (lx*lx / .0035 + ly*ly / .016 < 1) return [1.4, 2];                       // lentiform nuclei
+    }
+    return [.85, 0];                                                               // white matter
+  },
+  enter(){
+    const Rr = this.R = Math.min(S.w, S.h) * .455, cx = S.cx, cy = S.cy;
+    if (!this.hx || this.hx.length !== N){
+      const F = () => new Float32Array(N);
+      this.hx = F(); this.hy = F(); this.gx = F(); this.gy = F(); this.typ = new Uint8Array(N);
+    }
+    // targets drawn from the slice's density by rejection sampling
+    const TX = new Float32Array(N), TY = new Float32Array(N), TT = new Uint8Array(N);
+    for (let j = 0; j < N;){
+      const x = (R() * 2 - 1) * this.AX, y = (R() * 2 - 1) * this.AY, [d, ty_] = this.field(x, y);
+      if (R() * 2.1 < d){ TX[j] = cx + x * Rr; TY[j] = cy + y * Rr; TT[j] = ty_; j++; }
+    }
+    const m = match(TX, TY);
+    for (let i = 0; i < N; i++){ this.gx[i] = TX[m[i]]; this.gy[i] = TY[m[i]]; this.typ[i] = TT[m[i]]; }
+    // before any echoes: an unresolved, uniform disk
+    const HX = new Float32Array(N), HY = new Float32Array(N);
+    for (let j = 0; j < N; j++){ const r = Math.sqrt(R()) * Rr * .97, a = R() * TAU; HX[j] = cx + Math.cos(a) * r; HY[j] = cy + Math.sin(a) * r; }
+    const saveX = bx, saveY = by;
+    bx = this.gx; by = this.gy; const h = match(HX, HY); bx = saveX; by = saveY;  // pair each slice point with a nearby disk point
+    for (let i = 0; i < N; i++){ this.hx[i] = HX[h[i]]; this.hy[i] = HY[h[i]]; }
+    // strong reflectors: the skull, plus the ventricle walls
+    this.sc = [];
+    for (let k = 0; k < 18; k++){ const th = k / 18 * TAU + .1, t = .075 - .028 * Math.cos(2 * th); this.sc.push([Math.cos(th) * this.AX * (1 - t / 2), Math.sin(th) * this.AY * (1 - t / 2), 1]); }
+    this.sc.push([.19, -.25, .6], [-.19, -.25, .6], [.12, .22, .6], [-.12, .22, .6]);
+    this.prog = 0; this.shots = 0; this.shotT = -9; this.waves = []; this.next = now + 2.7; this.src = 0;   // wait until the particles have settled
+  },
+  order: [0, 32, 16, 48, 8, 40, 24, 56, 4, 36, 20, 52, 12, 44, 28, 60], NS: 16, extra: 6, GAP: .78,
+  waves: [], CT: 1.25,   // CT: seconds for a wavefront to cross the head
+  fire(k){ this.src = ((k % 64) + 64) % 64; this.shotT = now; this.waves.push({t: now, src: this.src}); if (this.shots < this.NS) this.shots++; Snd.ping(); },
+  poke(x, y){ const a = Math.atan2(y - S.cy, x - S.cx); this.fire(Math.round(a / TAU * 64)); if (this.shots < this.NS) this.next = now + this.GAP; },
+  step(dt){
+    if (this.shots < this.NS && now >= this.next){ this.fire(this.order[this.shots]); this.next = now + this.GAP; }
+    const goal = this.shots >= this.NS ? 1 : 1 - Math.exp(-this.shots / 4.4);
+    this.prog += (goal - this.prog) * Math.min(1, dt * 1.5);
+    const Rr = this.R, cw = Rr * 2 / this.CT, Rs = Rr * 1.07, sig = 7, A = 4.6;
+    this.waves = this.waves.filter(w => cw * (now - w.t) < Rr * 2.4);
+    const W = this.waves.map(w => {
+      const a = w.src / 64 * TAU, rho = cw * (now - w.t);
+      return [S.cx + Math.cos(a) * Rs, S.cy + Math.sin(a) * Rs, rho, A / (1 + rho / (Rr * 1.6))];
+    });
+    const scs = [];                                   // echoes of the latest shot
+    const lw = this.waves[this.waves.length - 1];
+    if (lw) for (const [ux, uy, str] of this.sc){
+      const a = lw.src / 64 * TAU, sx = S.cx + Math.cos(a) * Rs, sy = S.cy + Math.sin(a) * Rs;
+      const X = S.cx + ux * Rr, Y = S.cy + uy * Rr, rj = cw * (now - lw.t) - Math.hypot(X - sx, Y - sy);
+      if (rj > 0 && rj < Rr * 1.2) scs.push(X, Y, rj, A * .4 * str * (1 - rj / (Rr * 1.2)));
+    }
+    this.scs = scs;
+    const pr = this.prog, {hx, hy, gx, gy, typ} = this;
+    for (let i = 0; i < N; i++){
+      const X = hx[i] + (gx[i] - hx[i]) * pr, Y = hy[i] + (gy[i] - hy[i]) * pr;
+      tx[i] = X; ty[i] = Y;
+      let ddx = 0, ddy = 0;
+      for (let k = 0; k < W.length; k++){
+        const w = W[k], ex = X - w[0], ey = Y - w[1], d = Math.sqrt(ex*ex + ey*ey) + 1e-3, xi = (d - w[2]) / sig;
+        if (xi > -3 && xi < 3){ const x2 = xi*xi, q = (1 - 2*x2) * Math.exp(-x2) * w[3]; ddx += ex / d * q; ddy += ey / d * q; }
+      }
+      for (let j = 0; j < scs.length; j += 4){
+        const ex = X - scs[j], ey = Y - scs[j+1], d = Math.sqrt(ex*ex + ey*ey) + 1e-3, xi = (d - scs[j+2]) / sig;
+        if (xi > -3 && xi < 3){ const x2 = xi*xi, w = (1 - 2*x2) * Math.exp(-x2) * scs[j+3]; ddx += ex / d * w; ddy += ey / d * w; }
+      }
+      dx[i] = ddx; dy[i] = ddy;
+      const t = typ[i];
+      cls[i] = t === 1 || t === 4 ? (pr > .12 + rnd[i] * .3 ? 1 : 0) : t === 2 ? (pr > .3 + rnd[i] * .95 ? 2 : pr > .2 + rnd[i] * .4 ? 1 : 0) : 0;
+    }
+  },
+  overlay(c, al){
+    if (!this.R) return;
+    const Rr = this.R, Rs = Rr * 1.07, cw = Rr * 2 / this.CT;
+    // wavefronts: a leading compression and the trailing ripples of the pulse, clipped to the array
+    c.save();
+    c.beginPath(); c.arc(S.cx, S.cy, Rs - 5, 0, TAU); c.clip();
+    for (const w of this.waves){
+      const a = w.src / 64 * TAU, sx = S.cx + Math.cos(a) * Rs, sy = S.cy + Math.sin(a) * Rs;
+      const rho = cw * (now - w.t), f = al * Math.pow(Math.max(0, 1 - rho / (Rr * 2.3)), 1.1);
+      if (f <= .01) continue;
+      [[10, .12, .8, 0], [0, .62, 1.4, 1], [-12, .26, 1, 0], [-24, .12, .8, 0], [-36, .05, .8, 0]].forEach(([off, op, lw, acc]) => {
+        const r = rho + off; if (r <= 1) return;
+        c.lineWidth = lw;
+        c.strokeStyle = acc ? `rgba(195,70,43,${op * f})` : `rgba(26,25,21,${op * f})`;
+        c.beginPath(); c.arc(sx, sy, r, 0, TAU); c.stroke();
+      });
+    }
+    const scs = this.scs || [];                       // faint echoes from the skull and the ventricles
+    c.lineWidth = .8;
+    for (let j = 0; j < scs.length; j += 4){
+      const r = scs[j+2], f = al * .16 * (1 - r / (Rr * 1.2));
+      c.strokeStyle = `rgba(26,25,21,${f})`;
+      c.beginPath(); c.arc(scs[j], scs[j+1], r, 0, TAU); c.stroke();
+    }
+    c.restore();
+    c.lineWidth = 1;
+    for (let k = 0; k < 64; k++){
+      const a = k / 64 * TAU, ca = Math.cos(a), sa = Math.sin(a), on = k === this.src && now - this.shotT < .9;
+      const r0 = Rs - 3, r1 = on ? Rs + 10 : Rs + 4;
+      c.strokeStyle = on ? `rgba(195,70,43,${al})` : `rgba(26,25,21,${.3 * al})`;
+      c.beginPath(); c.moveTo(S.cx + ca * r0, S.cy + sa * r0); c.lineTo(S.cx + ca * r1, S.cy + sa * r1); c.stroke();
+    }
+  },
+  misfit(){ return .031 + .969 * Math.exp(-this.shots / 4.4); },
+  readout(){ return ['0.4 MHz · λ 3.9 mm', `Shot ${this.shots} / ${this.NS}`, `‖r‖/‖d‖ ${this.misfit().toFixed(3)}`]; },
+  op(){ return [Math.log10(4e5), Math.log10(2e5)]; }
+};
+
+/* ================= IV · Cavitation: microbubbles under a driving field ================= */
+const Cav = {
+  B: [], bub: null, ang: null, rx: null, ry: null, fx: null, fy: null,
+  x0: 0, y0: 0, w: 0, h: 0, lam: 40, k: 1, c: 1, cb: 1, tB: 0, xbPrev: -1e9, xb: -1e9, collapses: 0, P: .25,
+  enter(){
+    const x0 = this.x0 = S.x, y0 = this.y0 = S.y + 30, w = this.w = S.w, h = this.h = Math.max(60, S.h - 60);
+    this.lam = clamp(w / 15, 26, 56); this.k = TAU / this.lam; this.c = w * .32; this.cb = w / 1.5;
+    const M = clamp(Math.round(w * h / 23000), 9, 26), B = [];
+    for (let t = 0; t < 900 && B.length < M; t++){
+      const R0 = 8 + 21 * Math.pow(R(), 1.7), x = x0 + R0 * 2 + R() * (w - R0 * 4), y = y0 + R0 * 2 + R() * (h - R0 * 4);
+      if (B.every(b => Math.hypot(b.x - x, b.y - y) > b.R0 + R0 + 20)) B.push({x, y, R0, R: R0, el: R() < .72, st: 0, ts: 0});
+    }
+    this.B = B;
+    let wall = 0; const spacing = 2.3;
+    B.forEach(b => { b.n = Math.max(10, Math.round(TAU * b.R0 / spacing)); wall += b.n; });
+    const cap = Math.floor(N * .38);
+    if (wall > cap){ const f = cap / wall; wall = 0; B.forEach(b => { b.n = Math.max(8, Math.floor(b.n * f)); wall += b.n; }); }
+    const nb = N - wall;
+    const [GX, GY] = jitterGrid(x0, y0, w, h, nb, (x, y) => B.some(b => Math.hypot(b.x - x, b.y - y) < b.R0 + 4));
+    const TX = new Float32Array(N), TY = new Float32Array(N), TB = new Int16Array(N), TA = new Float32Array(N);
+    let j = 0;
+    B.forEach((b, bi) => { for (let q = 0; q < b.n; q++){ const a = q / b.n * TAU; TX[j] = b.x + Math.cos(a) * b.R0; TY[j] = b.y + Math.sin(a) * b.R0; TB[j] = bi; TA[j] = a; j++; } });
+    for (let q = 0; q < nb; q++, j++){ TX[j] = GX[q]; TY[j] = GY[q]; TB[j] = -1; TA[j] = 0; }
+    const m = match(TX, TY);
+    if (!this.bub || this.bub.length !== N){
+      this.bub = new Int16Array(N); const F = () => new Float32Array(N);
+      this.ang = F(); this.rx = F(); this.ry = F(); this.fx = F(); this.fy = F();
+    }
+    for (let i = 0; i < N; i++){ const t = m[i]; this.bub[i] = TB[t]; this.ang[i] = TA[t]; this.rx[i] = TX[t]; this.ry[i] = TY[t]; }
+    this.tB = now + 1.6; this.xb = this.xbPrev = -1e9; this.collapses = 0;
+  },
+  trigger(b){ if (b.st === 0){ b.st = 1; b.ts = now; } },
+  poke(x, y){
+    let best = null, bd = 1e9;
+    for (const b of this.B){ const d = Math.hypot(b.x - x, b.y - y); if (d < bd && b.st === 0){ bd = d; best = b; } }
+    if (best) this.trigger(best);
+  },
+  step(dt){
+    const {k, c} = this, wt = k * c * now;
+    this.xbPrev = this.xb;
+    if (now >= this.tB){
+      this.xb = this.x0 - 120 + (now - this.tB) * this.cb;
+      if (this.xb > this.x0 + this.w + 160){ this.tB = now + 2.4; this.xb = -1e9; }
+    } else this.xb = -1e9;
+    const xb = this.xb, burstOn = xb > -1e8;
+    const Aenv = x => 1.5 + (burstOn ? 5.5 * Math.exp(-Math.pow((x - xb) / 70, 2)) : 0);
+    this.P = .25 + (burstOn ? 1.55 * Math.exp(-Math.pow((xb - S.cx) / (this.w * .35), 2)) : 0);
+    const act = [];
+    this.B.forEach((b, bi) => {
+      const pb = Math.sin(k * b.x - wt) * Aenv(b.x) / 7;
+      b.x += 7 * dt * (1 + (burstOn ? 3 * Math.exp(-Math.pow((b.x - xb) / 90, 2)) : 0)); // primary Bjerknes push
+      if (b.st === 0){
+        b.R = b.R0 * (1 - .22 * pb);
+        if (burstOn && b.el && this.xbPrev < b.x && xb >= b.x && R() < .8) this.trigger(b);
+      }
+      if (b.st === 1){
+        const s = now - b.ts;
+        if (s < .55) b.R = b.R0 * (1 + 1.5 * Math.sin(Math.PI / 2 * s / .55));
+        else if (s < .66){ const u = (s - .55) / .11; b.R = b.R0 * (2.5 - 2.38 * u * u * u); }
+        else {
+          b.st = 2; b.ts = now; this.collapses++; Snd.pop();
+          for (let i = 0; i < N; i++) if (this.bub[i] === bi){
+            const a = this.ang[i] + (R() - .5) * .7, ca = Math.cos(a), sa = Math.sin(a), rc = b.R0 * .12;
+            bx[i] = b.x + Math.cos(this.ang[i]) * rc; by[i] = b.y + Math.sin(this.ang[i]) * rc;
+            const sp = b.R0 * (2 + R() * 4); vx[i] = ca * sp; vy[i] = sa * sp;
+            const rr = b.R0 * (.35 + R() * R() * 1.6); this.fx[i] = b.x + ca * rr; this.fy[i] = b.y + sa * rr;
+            dx[i] = dy[i] = 0;
+          }
+          b.R = b.R0;
+        }
+        if (b.st === 1) act.push(b);
+      } else if (b.st === 2){ if (now - b.ts > 1.9){ b.st = 3; b.ts = now; } }
+      else if (b.st === 3){ b.R = b.R0; if (now - b.ts > 1.1) b.st = 0; }
+    });
+    const {bub, ang, rx, ry, fx, fy, B} = this;
+    for (let i = 0; i < N; i++){
+      const bi = bub[i];
+      if (bi < 0){
+        const X = rx[i], Y = ry[i]; tx[i] = X; ty[i] = Y;
+        const ae = Aenv(X), ph = k * X - wt;
+        let ddx = ae * Math.sin(ph), ddy = 0;
+        for (const b of act){
+          const ex = X - b.x, ey = Y - b.y, d2 = ex*ex + ey*ey;
+          if (d2 < 36 * b.R0 * b.R0){ const d = Math.sqrt(d2) + 1e-3, u = Math.min(b.R0 * 1.6, (b.R**3 - b.R0**3) / (3 * d2)); ddx += ex / d * u; ddy += ey / d * u; }
+        }
+        dx[i] = ddx; dy[i] = ddy; cls[i] = -ae * Math.cos(ph) * k * 9 > 4.2 ? 1 : 0;
+      } else {
+        const b = B[bi], a = ang[i], ca = Math.cos(a), sa = Math.sin(a);
+        if (b.st === 2){ tx[i] = fx[i] + 4 * (now - b.ts) * Math.cos(a); ty[i] = fy[i] + 4 * (now - b.ts) * Math.sin(a); dx[i] = dy[i] = 0; cls[i] = 2; }
+        else {
+          tx[i] = b.x + ca * b.R0; ty[i] = b.y + sa * b.R0;
+          let dr = b.R - b.R0;
+          if (b.st === 1) dr += .07 * b.R * Math.sin(4 * a + now * 9) * Math.min(1, (now - b.ts) / .5);
+          dx[i] = ca * dr; dy[i] = sa * dr;
+          cls[i] = b.st === 0 ? 1 : 2;
+        }
+      }
+    }
+  },
+  overlay(){},
+  readout(){ return ['1.0 MHz · Ø ≈ 2.5 µm', `P⁻ ${this.P.toFixed(2)} MPa · MI ${this.P.toFixed(2)}`, `Collapses ${String(this.collapses).padStart(2, '0')}`]; },
+  op(){ return [6, Math.log10(this.P * 1e6)]; }
+};
+
+// "speaks" (Mod) is kept in the code but switched off for now; restore it with [Res, Mod, Inv, Cav]
+const MODES = [Res, Inv, Cav];
+const NM = MODES.length;
+const ovl = MODES.map((_, i) => i === 0 ? 1 : 0);
+
+/* ---------------- ripples from clicks ---------------- */
+const ripples = [];
+function applyRipples(){
+  for (let r = ripples.length - 1; r >= 0; r--){
+    const rp = ripples[r], age = now - rp.t;
+    if (age > 1.6){ ripples.splice(r, 1); continue; }
+    const rho = age * 380, amp = 3.6 * (1 - age / 1.6), sig = 7;
+    for (let i = 0; i < N; i++){
+      const ex = tx[i] - rp.x, ey = ty[i] - rp.y, d = Math.sqrt(ex*ex + ey*ey) + 1e-3, xi = (d - rho) / sig;
+      if (xi > -3 && xi < 3){ const x2 = xi*xi, w = (1 - 2*x2) * Math.exp(-x2) * amp; dx[i] += ex / d * w; dy[i] += ey / d * w; }
+    }
+  }
+}
+
+/* ---------------- DOM wiring ---------------- */
+const verbEls = [...document.querySelectorAll('#verbs em')];
+const atlas = document.getElementById('atlas');
+let opDot = null, opRing = null, rgEls = [];
+
+function buildAtlas(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (t, a, p = atlas) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+  const AX = {x0: 44, x1: 334, y0: 16, y1: 146, f0: 1, f1: 7.5, p0: -5.2, p1: 7.7};
+  const fx = v => AX.x0 + (v - AX.f0) / (AX.f1 - AX.f0) * (AX.x1 - AX.x0);
+  const py = v => AX.y1 - (v - AX.p0) / (AX.p1 - AX.p0) * (AX.y1 - AX.y0);
+  Atlas.fx = fx; Atlas.py = py;
+  el('line', {x1: AX.x0, y1: AX.y1, x2: AX.x1, y2: AX.y1, class: 'ax'});
+  el('line', {x1: AX.x0, y1: AX.y0, x2: AX.x0, y2: AX.y1, class: 'ax'});
+  el('line', {x1: fx(4.3), y1: AX.y0, x2: fx(4.3), y2: AX.y1, class: 'aud'});
+  [[1, '10 Hz', 'start'], [3, '1 kHz', 'middle'], [5, '100 kHz', 'middle'], [7, '10 MHz', 'end']].forEach(([v, s, an]) => {
+    el('line', {x1: fx(v), y1: AX.y1, x2: fx(v), y2: AX.y1 + 3, class: 'ax'});
+    const t = el('text', {x: fx(v), y: AX.y1 + 14, 'text-anchor': an}); t.textContent = s;
+  });
+  [[-4.7, '20 µPa'], [0, '1 Pa'], [6, '1 MPa']].forEach(([v, s]) => {
+    el('line', {x1: AX.x0 - 3, y1: py(v), x2: AX.x0, y2: py(v), class: 'ax'});
+    const t = el('text', {x: AX.x0 - 6, y: py(v) + 3, 'text-anchor': 'end'}); t.textContent = s;
+  });
+  const L = Math.log10, mi19 = f => L(1.9e6) + .5 * (f - 6);   // p = 1.9 MPa·√(f / 1 MHz)
+  const box = (f0, f1, p0, p1) => [[f0, p0], [f1, p0], [f1, p1], [f0, p1]];
+  const regs = [
+    // listening: the auditory field, 20 Hz–20 kHz, 0 dB (20 µPa) to 120 dB SPL (20 Pa)
+    {pts: box(L(20), L(2e4), L(2e-5), L(20)), lab: 'delight', at: [L(20), L(20)], an: 'start', dy: 10},
+    // speech: 200 Hz–8 kHz, 42 dBA (quietest parts) to 89 dBA (shouted)
+    // {pts: box(L(200), L(8e3), L(2.52e-3), L(.564)), lab: 'speak', at: [L(8e3), L(.564)], an: 'end', dy: 10, dx: -4},
+    // transcranial imaging: 0.1–2 MHz, from ~0.05 MPa up to the diagnostic MI 1.9 limit
+    {pts: [[5, L(5e4)], [L(2e6), L(5e4)], [L(2e6), mi19(L(2e6))], [5, mi19(5)]], lab: 'see', at: [5, L(5e4)], an: 'start', dy: 10, dx: 0},
+    // shaping matter: 0.22–3 MHz, 0.15 MPa (microbubble BBB opening) to ~30 MPa (histotripsy)
+    {pts: box(L(2.2e5), L(3e6), L(1.5e5), L(3e7)), lab: 'shape', at: [L(2.2e5), L(3e7)], an: 'start', dy: -4, dx: 0}
+  ];
+  rgEls = regs.map((r, i) => {
+    const g = el('g', {class: 'rg'});
+    el('path', {d: 'M' + r.pts.map(([f, p]) => fx(f).toFixed(1) + ',' + py(p).toFixed(1)).join('L') + 'Z'}, g);
+    const t = el('text', {x: fx(r.at[0]) + (r.dx ?? 4), y: py(r.at[1]) + r.dy, 'text-anchor': r.an}, g); t.textContent = r.lab;
+    g.addEventListener('click', () => setMode(i));
+    return g;
+  });
+  opRing = el('circle', {r: 3, fill: 'none', stroke: 'var(--accent)', 'stroke-width': .8});
+  opDot = el('circle', {r: 2.4, fill: 'var(--accent)'});
+}
+const Atlas = {fx: null, py: null, x: 3, y: -.7};
+
+function syncDOM(prev){
+  rgEls.forEach((el, i) => el.classList.toggle('on', i === mode));
+  if (prev !== undefined && prev !== mode){
+    const pe = verbEls[prev];
+    pe.classList.remove('on'); pe.classList.add('out');
+    setTimeout(() => { pe.style.transition = 'none'; pe.classList.remove('out'); void pe.offsetWidth; pe.style.transition = ''; }, 1000);
+  }
+  verbEls.forEach((e, i) => { if (i === mode){ e.classList.remove('out'); e.classList.add('on'); } });
+}
+
+function setMode(i){
+  i = ((i % NM) + NM) % NM;
+  const t0 = now - tSwitch;
+  for (let k = 0; k < N; k++){ const r = smooth((t0 - delay[k]) / .9); bx[k] += dx[k] * r; by[k] += dy[k] * r; dx[k] = dy[k] = 0; }
+  const prev = mode;
+  if (MODES[prev].leave) MODES[prev].leave();
+  mode = i; tSwitch = now; elapsed = 0;
+  MODES[i].enter(false);
+  for (let k = 0; k < N; k++) delay[k] = clamp((bx[k] - S.x) / S.w, 0, 1) * .7 + rnd[k] * .3;
+  syncDOM(prev);
+}
+
+/* ---------------- loop ---------------- */
+function integrate(dt){
+  const t0 = now - tSwitch;
+  for (let i = 0; i < N; i++){
+    const r = smooth((t0 - delay[i]) / .9), k = KB * r, c = 2 * Math.sqrt(k) + 1.2;
+    vx[i] += (k * (tx[i] - bx[i]) - c * vx[i]) * dt;
+    vy[i] += (k * (ty[i] - by[i]) - c * vy[i]) * dt;
+    bx[i] += vx[i] * dt; by[i] += vy[i] * dt;
+    PX[i] = bx[i] + dx[i] * r; PY[i] = by[i] + dy[i] * r;
+  }
+}
+function draw(){
+  const c = ctx;
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cvs.width, cvs.height);
+  const passes = [[0, 'rgba(26,25,21,.30)', 1.1], [1, 'rgba(26,25,21,.84)', 1.3], [2, 'rgba(195,70,43,.92)', 1.55]];
+  for (const [id, col, sz] of passes){
+    c.fillStyle = col; const s = sz * DPR, h = s / 2;
+    for (let i = 0; i < N; i++) if (cls[i] === id) c.fillRect(PX[i] * DPR - h, PY[i] * DPR - h, s, s);
+  }
+  c.setTransform(DPR, 0, 0, DPR, 0, 0);
+  for (let m = 0; m < NM; m++) if (ovl[m] > .01) MODES[m].overlay(c, ovl[m]);
+}
+let roT = 0, last = 0;
+function frame(ms){
+  requestAnimationFrame(frame);
+  const t = ms / 1000; let dt = t - last; last = t;
+  if (dt <= 0) return; if (dt > .05) dt = .05;
+  now += dt;
+  if (!hover) elapsed += dt;
+  if (elapsed > SEG + (MODES[mode].extra || 0)) setMode(mode + 1);
+  MODES[mode].step(dt);
+  if (ripples.length) applyRipples();
+  integrate(dt);
+  for (let m = 0; m < NM; m++) ovl[m] += ((m === mode ? 1 : 0) - ovl[m]) * Math.min(1, dt * 2.2);
+  draw();
+  const [of, op] = MODES[mode].op();
+  Atlas.x += (of - Atlas.x) * Math.min(1, dt * 3); Atlas.y += (op - Atlas.y) * Math.min(1, dt * 3);
+  if (opDot){
+    const X = Atlas.fx(Atlas.x), Y = Atlas.py(Atlas.y), ph = (now % 1.8) / 1.8;
+    opDot.setAttribute('cx', X); opDot.setAttribute('cy', Y);
+    opRing.setAttribute('cx', X); opRing.setAttribute('cy', Y);
+    opRing.setAttribute('r', 2.4 + ph * 8); opRing.setAttribute('opacity', (1 - ph) * .8);
+  }
+}
+
+/* ---------------- events ---------------- */
+document.getElementById('verbs').addEventListener('click', () => setMode(mode + 1));
+stageEl.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') hover = true; });
+stageEl.addEventListener('pointerleave', () => { hover = false; });
+stageEl.addEventListener('click', e => {
+  const hr = hero.getBoundingClientRect(), x = e.clientX - hr.left, y = e.clientY - hr.top;
+  if (!reduce) ripples.push({x, y, t: now});
+  if (ripples.length > 5) ripples.shift();
+  MODES[mode].poke(x, y);
+});
+document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input,textarea')) return;
+  if (e.key === 'ArrowRight') setMode(mode + 1);
+  if (e.key === 'ArrowLeft') setMode(mode - 1);
+});
+const sndBtn = document.getElementById('snd'), sndLabel = document.getElementById('sndLabel');
+sndBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  const on = Snd.toggle();
+  sndBtn.setAttribute('aria-pressed', on); sndLabel.textContent = on ? 'Sound on' : 'Sound off';
+});
+// sound is on by default; browsers only allow audio after the first gesture, so start it then
+const firstGesture = () => {
+  Snd.unlock().catch(() => {});
+  ['pointerdown', 'keydown', 'touchstart'].forEach(ev => removeEventListener(ev, firstGesture, true));
+};
+['pointerdown', 'keydown', 'touchstart'].forEach(ev => addEventListener(ev, firstGesture, true));
+let rsT = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(rsT);
+  rsT = setTimeout(() => { measure(); MODES[mode].enter(true); if (mode !== 0) tSwitch = now - 5; }, 160);
+});
+
+/* ---------------- start: the medium bursts out of a point source ---------------- */
+buildAtlas();
+measure();
+alloc(Math.round(clamp(S.w * S.h / 52, 2600, 8200)));
+for (let i = 0; i < N; i++){ const a = R() * TAU, r = R() * 4; bx[i] = S.cx + Math.cos(a) * r; by[i] = S.cy + Math.sin(a) * r; delay[i] = .25 + rnd[i] * .55; }
+const q = new URLSearchParams(location.search).get('mode');
+mode = q !== null ? clamp(parseInt(q, 10) || 0, 0, NM - 1) : 0;
+MODES[mode].enter(false); ovl.fill(0); ovl[mode] = 1;
+syncDOM();
+verbEls.forEach((e, i) => e.classList.toggle('on', i === mode));
+requestAnimationFrame(ms => { last = ms / 1000; document.body.classList.add('ready'); requestAnimationFrame(frame); });
+try { Snd.init(); } catch (e) {}
+window.__home = {setMode, get mode(){ return mode; }};
+})();
+</script>
+</body>
+</html>
