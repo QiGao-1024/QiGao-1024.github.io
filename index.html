@@ -38,8 +38,14 @@ a{color:inherit}
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .1  0 0 0 0 .09  0 0 0 0 .08  0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
 
 /* ---------- frame ---------- */
-.hero{position:relative;min-height:100vh;min-height:100svh;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
-#field{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1.4s ease}
+.hero{position:relative;min-height:100vh;min-height:100svh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
+.foot{position:relative;z-index:3;display:flex;align-items:center;gap:6px;padding:0 var(--gut) calc(18px + env(safe-area-inset-bottom,0px));margin-left:-8px}
+.ic{appearance:none;background:none;border:0;padding:8px;color:var(--ink-3);display:inline-flex;cursor:pointer;border-radius:6px;transition:color .3s}
+.ic:hover{color:var(--accent)}
+.ic:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
+.toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));z-index:60;transform:translate(-50%,10px);opacity:0;pointer-events:none;background:var(--paper);color:var(--ink);border:1px solid var(--hair);border-radius:999px;padding:9px 16px;box-shadow:0 6px 24px rgba(26,25,21,.08);transition:opacity .35s,transform .35s;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+#field{position:absolute;left:0;top:0;display:block;opacity:0;transition:opacity 1.4s ease}
 .ready #field{opacity:1}
 
 .top{position:relative;z-index:3;display:flex;align-items:center;gap:36px;padding:24px var(--gut) 0}
@@ -66,13 +72,18 @@ a{color:inherit}
 .copy{align-self:center;max-width:540px;pointer-events:auto}
 .eyebrow{color:var(--ink-3);margin:0 0 26px}
 h1{font-family:var(--serif);font-weight:400;font-size:clamp(50px,5.9vw,106px);line-height:.95;letter-spacing:-.018em;margin:0}
-h1 .l1{display:block}
+h1 .bp{display:none}
 .verbs{display:inline-grid;cursor:pointer}
 .verbs em{grid-area:1/1;font-style:italic;opacity:0;transform:translateY(.22em);filter:blur(7px);transition:opacity .9s ease,transform 1s cubic-bezier(.2,.7,.2,1),filter .9s ease;white-space:nowrap}
 .verbs em b{font-weight:400;color:var(--accent)}
 .verbs em.on{opacity:1;transform:none;filter:none}
 .verbs em.out{opacity:0;transform:translateY(-.22em);filter:blur(7px)}
-.lede{margin:28px 0 0;color:var(--ink-2);font-size:clamp(15px,1.08vw,16.5px);max-width:41ch;line-height:1.62}
+.lede{margin:28px 0 0;color:var(--ink-2);font-size:clamp(15px,1.08vw,16.5px);max-width:41ch;line-height:1.62;display:grid;align-items:start}
+.lede p{grid-area:1/1;margin:0;opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .8s ease,transform .9s cubic-bezier(.2,.7,.2,1),visibility 0s linear .8s}
+.lede p.on{opacity:1;visibility:visible;transform:none;transition:opacity .9s ease .15s,transform 1s cubic-bezier(.2,.7,.2,1) .15s,visibility 0s}
+.lede a{color:var(--ink);text-decoration:none;background:linear-gradient(var(--accent),var(--accent)) 0 100%/100% 1px no-repeat;padding-bottom:1px;transition:color .3s,background-size .3s}
+.lede a:hover{color:var(--accent)}
+.lede a:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
 
 .atlas{margin:40px 0 0;max-width:392px}
 .atlas .cap-t{color:var(--ink-3);margin:0 0 10px;display:flex;align-items:center;gap:10px}
@@ -111,10 +122,12 @@ h1 .l1{display:block}
   .copy{display:contents}
   .copy > *{pointer-events:auto}
   .eyebrow{order:1;margin-top:18px}
-  h1{order:2;font-size:clamp(48px,10vw,96px)}
-  .stage{order:3;height:min(104vw,640px);margin:30px 0 26px}
-  .atlas{order:4;margin-top:0}
-  .lede{order:5;margin-top:30px;max-width:46ch}
+  h1{order:2;font-size:clamp(40px,10.4vw,92px)}
+  h1 .bl{display:none}
+  h1 .bp{display:inline}
+  .lede{order:3;margin-top:20px;max-width:52ch;transition:height .8s cubic-bezier(.2,.7,.2,1)}
+  .stage{order:4;height:min(calc(100vw - 2 * var(--gut)), 620px);margin:18px 0 26px}
+  .atlas{order:5;margin-top:0}
 }
 @media (max-width:540px){
   .atlas{max-width:none}
@@ -147,12 +160,17 @@ h1 .l1{display:block}
   <div class="main">
     <div class="copy">
       <p class="eyebrow mono rv">PhD researcher · Imperial College London</p>
-      <h1 class="rv d1"><span class="l1">I’m drawn to</span><span class="l1">sound that</span>
-        <span class="verbs" id="verbs" aria-live="polite"><em class="on">delights<b>.</b></em><!-- <em>speaks<b>.</b></em> --><em>sees<b>.</b></em><em>shapes<b>.</b></em></span></h1>
-      <p class="lede rv d2">I work on transcranial ultrasound imaging, recovering the brain behind the skull by full-waveform inversion of the recorded wavefield. Away from the solver I listen to music, make it, and keep collecting the other things a single pressure wave can do.</p>
+      <h1 class="rv d1">I’m drawn to<br class="bl"> sound<br class="bp"> that<br class="bl">
+        <span class="verbs" id="verbs" aria-live="polite"><em class="on">delights<b>.</b></em><!-- <em>speaks<b>.</b></em> --><em>sees<b>.</b></em><em>shapes<b>.</b></em><em>cares<b>.</b></em></span></h1>
+      <div class="lede rv d2" id="lede" aria-live="polite">
+        <p class="on">I listen to music, and I make music. My favourite artists include Lady Gaga (<a href="https://en.wikipedia.org/wiki/Artpop" target="_blank" rel="noopener"><i>Artpop</i></a>, <a href="https://en.wikipedia.org/wiki/Harlequin_(Lady_Gaga_album)" target="_blank" rel="noopener"><i>Harlequin</i></a>), Faye Wong (<a href="https://en.wikipedia.org/wiki/Fuzao" target="_blank" rel="noopener"><i>Fuzao</i></a>) and Sufjan Stevens (<a href="https://en.wikipedia.org/wiki/Carrie_%26_Lowell" target="_blank" rel="noopener"><i>Carrie &amp; Lowell</i></a>). I also love music in film, especially the <a href="https://www.youtube.com/watch?v=CO9TtI_wReQ" target="_blank" rel="noopener"><i>Crouching Tiger, Hidden Dragon</i> soundtrack</a>.</p>
+        <p>I am a PhD student at Imperial College London, working on transcranial ultrasound imaging with full-waveform inversion. For the idea in full, please read <a href="https://www.nature.com/articles/s41746-020-0240-8" target="_blank" rel="noopener">this work</a>.</p>
+        <p>I also study how ultrasound drives microbubble contrast agents and the nonlinear dynamics that follow. Ultrasound contrast agents hold great potential for clinical applications.</p>
+        <p>The goal is to bring these together. Non-invasive, radiation-free and efficient, sound can image a lesion, modulate neural activity and deliver a drug, quickly and safely.</p>
+      </div>
       <figure class="atlas rv d3">
         <p class="cap-t mono">Fig. 0 · Frequency × pressure</p>
-        <svg id="atlas" viewBox="0 0 340 172" role="img" aria-label="Log frequency against log pressure, showing where sound is used to delight, to speak, to see through the skull and to shape matter. Select a region to change the field."></svg>
+        <svg id="atlas" viewBox="0 0 340 172" role="img" aria-label="Log frequency against log pressure, showing where sound is used to delight, to speak, to see through the skull and to shape matter; the last view draws on both imaging and shaping. Select a region to change the field."></svg>
       </figure>
     </div>
 
@@ -161,7 +179,16 @@ h1 .l1{display:block}
     </div>
   </div>
 
+  <footer class="foot rv d4">
+    <a class="ic" href="https://www.linkedin.com/in/qi-gao-4097491b3" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+    </a>
+    <button class="ic" type="button" id="mail" aria-label="Copy email address" title="Copy email address">
+      <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 6l9 7 9-7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    </button>
+  </footer>
 </div>
+<div class="toast mono" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 document.documentElement.classList.add('js');
@@ -180,7 +207,7 @@ const ctx = cvs.getContext('2d');
 const stageEl = document.getElementById('stage');
 const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
 
-let W = 0, H = 0, DPR = 1;
+let W = 0, H = 0, DPR = 1, offY = 0;
 let S = {x:0, y:0, w:1, h:1, cx:0, cy:0};
 let N = 0;
 let bx, by, vx, vy, tx, ty, dx, dy, PX, PY, delay, rnd, cls;
@@ -193,9 +220,11 @@ function measure(){
   W = hr.width; H = hr.height;
   DPR = Math.min(window.devicePixelRatio || 1, 2);
   cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
+  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
   const sr = stageEl.getBoundingClientRect();
   S = {x: sr.left - hr.left, y: sr.top - hr.top, w: Math.max(1, sr.width), h: Math.max(1, sr.height)};
   S.cx = S.x + S.w / 2; S.cy = S.y + S.h / 2;
+  offY = 0;
 }
 function alloc(n){
   N = n;
@@ -685,7 +714,99 @@ const Cav = {
 };
 
 // "speaks" (Mod) is kept in the code but switched off for now; restore it with [Res, Mod, Inv, Cav]
-const MODES = [Res, Inv, Cav];
+/* ================= Care: image, then act at a chosen point, without a cut ================= */
+const Care = {
+  extra: 3, gx: null, gy: null, typ: null, R: 0,
+  T: [[-.4, -.22], [.37, .2], [-.06, .56]],   // targets in unit head coordinates
+  PER: 4, GAP: .78, TC: .6,                  // pulses per target, gap between pulses, convergence time
+  enter(){
+    const Rr = this.R = Math.min(S.w, S.h) * .455, cx = S.cx, cy = S.cy;
+    if (!this.gx || this.gx.length !== N){ this.gx = new Float32Array(N); this.gy = new Float32Array(N); this.typ = new Uint8Array(N); }
+    const TX = new Float32Array(N), TY = new Float32Array(N), TT = new Uint8Array(N);
+    for (let j = 0; j < N;){
+      const x = (R() * 2 - 1) * Inv.AX, y = (R() * 2 - 1) * Inv.AY, [d, t] = Inv.field(x, y);
+      if (R() * 2.1 < d){ TX[j] = cx + x * Rr; TY[j] = cy + y * Rr; TT[j] = t; j++; }
+    }
+    const m = match(TX, TY);
+    for (let i = 0; i < N; i++){ this.gx[i] = TX[m[i]]; this.gy[i] = TY[m[i]]; this.typ[i] = TT[m[i]]; }
+    this.ti = 0; this.pk = 0; this.pulses = 0; this.dose = [0, 0, 0]; this.pulseT = -9; this.next = now + 2.7; this.done = false;
+  },
+  focus(k){ const [u, v] = this.T[k]; return [S.cx + u * Inv.AX * this.R, S.cy + v * Inv.AY * this.R]; },
+  arc(){ const Rh = this.R * 1.1; return [Rh, Math.PI * 1.11, Math.PI * 1.89]; },   // helmet array over the top of the head
+  aperture(F){
+    const [Rh, a0, a1] = this.arc();
+    const A0 = Math.atan2(S.cy + Math.sin(a0) * Rh - F[1], S.cx + Math.cos(a0) * Rh - F[0]);
+    const A1 = Math.atan2(S.cy + Math.sin(a1) * Rh - F[1], S.cx + Math.cos(a1) * Rh - F[0]);
+    let r0 = 0; for (let k = 0; k <= 8; k++){ const a = a0 + (a1 - a0) * k / 8; r0 = Math.max(r0, Math.hypot(S.cx + Math.cos(a) * Rh - F[0], S.cy + Math.sin(a) * Rh - F[1])); }
+    return [A0, A1, r0];
+  },
+  fire(){
+    this.pulseT = now; this.pulses++; this.pk = this.ti; this.dose[this.ti]++;
+    Snd.tone(196, .9, .05); Snd.tone(392, .6, .02, .02);
+    if (this.dose[this.ti] >= this.PER){ if (this.ti < this.T.length - 1){ this.ti++; this.next = now + this.GAP + .7; } else this.done = true; }
+    else this.next = now + this.GAP;
+  },
+  poke(){ if (!this.done && now > this.next - .3) this.fire(); },
+  step(){
+    if (!this.done && now >= this.next) this.fire();
+    const cur = now - this.pulseT < this.TC + .5 ? this.pk : this.ti;   // keep aiming at the point whose pulse is in flight
+    const F = this.focus(cur), [A0, A1, r0] = this.aperture(F), tau = now - this.pulseT;
+    const rho = r0 * (1 - tau / this.TC), live = tau >= 0 && tau < this.TC, sig = 7;
+    const gain = live ? 2.2 + 3.6 * (1 - rho / r0) : 0;                      // focusing gain
+    const burst = tau >= this.TC && tau < this.TC + .45 ? Math.sin((tau - this.TC) * 70) * 2.2 * (1 - (tau - this.TC) / .45) : 0;
+    const spots = this.T.map((t, k) => { const [fx, fy] = this.focus(k); return [fx, fy, this.dose[k] ? this.R * (.05 + .022 * this.dose[k]) : 0]; });
+    const {gx, gy, typ} = this;
+    for (let i = 0; i < N; i++){
+      let X = gx[i], Y = gy[i];
+      let c = typ[i] === 1 || typ[i] === 4 ? 1 : typ[i] === 2 && rnd[i] < .3 ? 1 : 0;
+      for (const [sx, sy, rr] of spots){                             // delivered: the medium gathers at each treated point
+        if (!rr) continue;
+        const fx = X - sx, fy = Y - sy, q = fx*fx + fy*fy;
+        if (q < rr * rr * 2.4){ const k = .32 * (1 - Math.sqrt(q) / (rr * 1.55)); X -= fx * k; Y -= fy * k; }
+        if (q < rr * rr * (.55 + .45 * rnd[i])) c = 2;
+      }
+      tx[i] = X; ty[i] = Y;
+      let ddx = 0, ddy = 0;
+      const ex = X - F[0], ey = Y - F[1], d = Math.sqrt(ex*ex + ey*ey) + 1e-3;
+      if (live){
+        const xi = (d - rho) / sig;
+        if (xi > -3 && xi < 3){ const a = Math.atan2(ey, ex); if (a > A0 && a < A1){ const x2 = xi*xi, q = (1 - 2*x2) * Math.exp(-x2) * gain; ddx -= ex / d * q; ddy -= ey / d * q; } }
+      }
+      if (burst && d < this.R * .09){ const q = burst * (1 - d / (this.R * .09)); ddx += ex / d * q; ddy += ey / d * q; }
+      dx[i] = ddx; dy[i] = ddy;
+      cls[i] = c;
+    }
+    this.F = F; this.ap = [A0, A1, r0, rho, live];
+  },
+  overlay(c, al){
+    if (!this.R || !this.F) return;
+    const [Rh, a0, a1] = this.arc(), [A0, A1, r0, rho, live] = this.ap, F = this.F;
+    c.lineWidth = 1;
+    for (let k = 0; k <= 30; k++){                                 // helmet elements
+      const a = a0 + (a1 - a0) * k / 30, ca = Math.cos(a), sa = Math.sin(a), on = now - this.pulseT < .25;
+      c.strokeStyle = on ? `rgba(195,70,43,${.9 * al})` : `rgba(26,25,21,${.35 * al})`;
+      c.beginPath(); c.moveTo(S.cx + ca * (Rh - 3), S.cy + sa * (Rh - 3)); c.lineTo(S.cx + ca * (Rh + (on ? 9 : 5)), S.cy + sa * (Rh + (on ? 9 : 5))); c.stroke();
+    }
+    if (live){                                                     // converging wavefront and its trailing ripples
+      c.save(); c.beginPath(); c.arc(S.cx, S.cy, Rh - 5, 0, TAU); c.clip();
+      const f = al * (.45 + .55 * (1 - rho / r0));
+      [[0, .65, 1.4, 1], [12, .26, 1, 0], [24, .12, .8, 0]].forEach(([off, op, lw, acc]) => {
+        const r = rho + off; if (r <= 1) return;
+        c.lineWidth = lw; c.strokeStyle = acc ? `rgba(195,70,43,${op * f})` : `rgba(26,25,21,${op * f})`;
+        c.beginPath(); c.arc(F[0], F[1], r, A0, A1); c.stroke();
+      });
+      c.restore();
+    }
+    if (!this.done){                                               // a faint mark on the chosen point
+      c.strokeStyle = `rgba(26,25,21,${.35 * al})`; c.lineWidth = 1;
+      c.beginPath(); c.arc(F[0], F[1], 11, 0, TAU); c.stroke();
+    }
+  },
+  readout(){ return []; },
+  op(){ const t = now - this.pulseT; return [Math.log10(5e5), Math.log10(t < this.TC + .3 ? 4e5 : 1e5)]; }
+};
+
+const MODES = [Res, Inv, Cav, Care];
 const NM = MODES.length;
 const ovl = MODES.map((_, i) => i === 0 ? 1 : 0);
 
@@ -705,6 +826,16 @@ function applyRipples(){
 
 /* ---------------- DOM wiring ---------------- */
 const verbEls = [...document.querySelectorAll('#verbs em')];
+const ledeEls = [...document.querySelectorAll('#lede p')];
+const ledeBox = document.getElementById('lede');
+const portrait = matchMedia('(max-width:880px), (orientation:portrait) and (max-width:1100px)');
+function fitLede(instant){
+  if (!portrait.matches){ ledeBox.style.height = ''; return; }
+  const p = ledeEls[mode]; if (!p) return;
+  if (instant) ledeBox.style.transition = 'none';
+  ledeBox.style.height = p.offsetHeight + 'px';
+  if (instant){ void ledeBox.offsetHeight; ledeBox.style.transition = ''; }
+}
 const atlas = document.getElementById('atlas');
 let opDot = null, opRing = null, rgEls = [];
 
@@ -751,7 +882,9 @@ function buildAtlas(){
 const Atlas = {fx: null, py: null, x: 3, y: -.7};
 
 function syncDOM(prev){
-  rgEls.forEach((el, i) => el.classList.toggle('on', i === mode));
+  rgEls.forEach((el, i) => el.classList.toggle('on', i === mode || (MODES[mode] === Care && (i === 1 || i === 2))));
+  ledeEls.forEach((e, i) => e.classList.toggle('on', i === mode));
+  fitLede(false);
   if (prev !== undefined && prev !== mode){
     const pe = verbEls[prev];
     pe.classList.remove('on'); pe.classList.add('out');
@@ -789,9 +922,10 @@ function draw(){
   const passes = [[0, 'rgba(26,25,21,.30)', 1.1], [1, 'rgba(26,25,21,.84)', 1.3], [2, 'rgba(195,70,43,.92)', 1.55]];
   for (const [id, col, sz] of passes){
     c.fillStyle = col; const s = sz * DPR, h = s / 2;
-    for (let i = 0; i < N; i++) if (cls[i] === id) c.fillRect(PX[i] * DPR - h, PY[i] * DPR - h, s, s);
+    const oy = offY * DPR - h;
+    for (let i = 0; i < N; i++) if (cls[i] === id) c.fillRect(PX[i] * DPR - h, PY[i] * DPR + oy, s, s);
   }
-  c.setTransform(DPR, 0, 0, DPR, 0, 0);
+  c.setTransform(DPR, 0, 0, DPR, 0, offY * DPR);
   for (let m = 0; m < NM; m++) if (ovl[m] > .01) MODES[m].overlay(c, ovl[m]);
 }
 let roT = 0, last = 0;
@@ -800,6 +934,7 @@ function frame(ms){
   const t = ms / 1000; let dt = t - last; last = t;
   if (dt <= 0) return; if (dt > .05) dt = .05;
   now += dt;
+  offY = (stageEl.getBoundingClientRect().top - hero.getBoundingClientRect().top) - S.y;
   if (!hover) elapsed += dt;
   if (elapsed > SEG + (MODES[mode].extra || 0)) setMode(mode + 1);
   MODES[mode].step(dt);
@@ -819,10 +954,28 @@ function frame(ms){
 
 /* ---------------- events ---------------- */
 document.getElementById('verbs').addEventListener('click', () => setMode(mode + 1));
+// contact: the address is never shown; a click copies it and says so
+const toast = document.getElementById('toast');
+let toastT = 0;
+function say(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove('show'), 2600); }
+document.getElementById('mail').addEventListener('click', e => {
+  e.stopPropagation();
+  const addr = ['liamgao1024', 'gmail.com'].join('@');
+  const fallback = () => {
+    const t = document.createElement('textarea'); t.value = addr; t.setAttribute('readonly', '');
+    t.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none'; document.body.appendChild(t);
+    t.select(); t.setSelectionRange(0, addr.length);
+    let ok = false; try { ok = document.execCommand('copy'); } catch (err) {}
+    t.remove(); return ok;
+  };
+  const done = ok => say(ok ? 'Email copied. Paste it into your mail app.' : 'Could not copy the email address.');
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(addr).then(() => done(true), () => done(fallback()));
+  else done(fallback());
+});
 stageEl.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') hover = true; });
 stageEl.addEventListener('pointerleave', () => { hover = false; });
 stageEl.addEventListener('click', e => {
-  const hr = hero.getBoundingClientRect(), x = e.clientX - hr.left, y = e.clientY - hr.top;
+  const hr = hero.getBoundingClientRect(), x = e.clientX - hr.left, y = e.clientY - hr.top - offY;
   if (!reduce) ripples.push({x, y, t: now});
   if (ripples.length > 5) ripples.shift();
   MODES[mode].poke(x, y);
@@ -858,12 +1011,16 @@ syncSnd();
 let rsT = 0;
 window.addEventListener('resize', () => {
   clearTimeout(rsT);
-  rsT = setTimeout(() => { measure(); MODES[mode].enter(true); if (mode !== 0) tSwitch = now - 5; }, 160);
+  rsT = setTimeout(() => { fitLede(true); measure(); MODES[mode].enter(true); if (mode !== 0) tSwitch = now - 5; }, 160);
 });
 
 /* ---------------- start: the medium bursts out of a point source ---------------- */
 buildAtlas();
+const q0 = new URLSearchParams(location.search).get('mode');
+if (q0 !== null) mode = Math.max(0, Math.min(3, parseInt(q0, 10) || 0));
+fitLede(true);
 measure();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitLede(true));
 alloc(Math.round(clamp(S.w * S.h / 52, 2600, 8200)));
 for (let i = 0; i < N; i++){ const a = R() * TAU, r = R() * 4; bx[i] = S.cx + Math.cos(a) * r; by[i] = S.cy + Math.sin(a) * r; delay[i] = .25 + rnd[i] * .55; }
 const q = new URLSearchParams(location.search).get('mode');
@@ -871,6 +1028,7 @@ mode = q !== null ? clamp(parseInt(q, 10) || 0, 0, NM - 1) : 0;
 MODES[mode].enter(false); ovl.fill(0); ovl[mode] = 1;
 syncDOM();
 verbEls.forEach((e, i) => e.classList.toggle('on', i === mode));
+ledeEls.forEach((e, i) => e.classList.toggle('on', i === mode));
 requestAnimationFrame(ms => { last = ms / 1000; document.body.classList.add('ready'); requestAnimationFrame(frame); });
 window.__home = {setMode, get mode(){ return mode; }};
 })();
