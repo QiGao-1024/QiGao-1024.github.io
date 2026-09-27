@@ -1008,10 +1008,17 @@ const gesture = () => { if (Snd.on && !Snd.running()){ unlockT = performance.now
 ['click', 'touchend', 'pointerup', 'keydown'].forEach(ev => addEventListener(ev, gesture, true));
 document.addEventListener('visibilitychange', syncSnd);
 syncSnd();
-let rsT = 0;
+let rsT = 0, lastW = innerWidth, lastH = innerHeight;
 window.addEventListener('resize', () => {
   clearTimeout(rsT);
-  rsT = setTimeout(() => { fitLede(true); measure(); MODES[mode].enter(true); if (mode !== 0) tSwitch = now - 5; }, 160);
+  rsT = setTimeout(() => {
+    // Phones fire 'resize' while scrolling, as the address bar slides in and out. Only the height changes then,
+    // and on a portrait page nothing depends on it, so the animation carries on untouched.
+    const wChanged = Math.abs(innerWidth - lastW) > 1, hChanged = Math.abs(innerHeight - lastH) > 1;
+    lastW = innerWidth; lastH = innerHeight;
+    if (!wChanged && (coarse || portrait.matches || !hChanged)) return;
+    fitLede(true); measure(); MODES[mode].enter(true); if (mode !== 0) tSwitch = now - 5;
+  }, 160);
 });
 
 /* ---------------- start: the medium bursts out of a point source ---------------- */
